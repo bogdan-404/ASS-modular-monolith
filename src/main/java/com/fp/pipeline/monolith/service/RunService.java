@@ -158,11 +158,18 @@ public class RunService {
     
     transactionTemplate.execute(status -> {
       jdbc.update("UPDATE runs SET finished_at = NOW() WHERE id = ?", runId);
-      jdbc.execute("REFRESH MATERIALIZED VIEW results_stats");
       return null;
     });
     
-    Map<String, Object> stats = jdbc.queryForMap("SELECT * FROM results_stats");
+    // Calculate stats for this specific run_id
+    Map<String, Object> stats = jdbc.queryForMap(
+      "SELECT " +
+      "  COUNT(*)::BIGINT AS total_processed, " +
+      "  AVG(score)::NUMERIC(10,2) AS avg_score, " +
+      "  AVG(CASE WHEN has_words THEN 1 ELSE 0 END)::NUMERIC(5,4) AS bad_words_rate " +
+      "FROM results WHERE run_id = ?",
+      runId
+    );
     
     Map<String, Object> result = new HashMap<>();
     result.put("runId", runId);
