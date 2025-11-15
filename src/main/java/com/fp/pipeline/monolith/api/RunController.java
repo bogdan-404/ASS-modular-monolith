@@ -28,5 +28,10 @@ public class RunController {
     jdbc.execute("REFRESH MATERIALIZED VIEW results_stats");
     return jdbc.queryForMap("SELECT * FROM results_stats");
   }
+
+  @GetMapping("/run")
+  public Map<String,Object> run(@RequestParam(name="count", defaultValue="1000") int count) {
+    return runService.runCount(count);
+  }
 }
 

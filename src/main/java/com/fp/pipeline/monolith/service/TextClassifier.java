@@ -4,6 +4,8 @@ import com.fp.pipeline.monolith.model.BadTermEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 @Component
 public class TextClassifier {
@@ -28,6 +30,33 @@ public class TextClassifier {
   public int score(String s) {
     int wc = wordCount(s);
     return wc * (hasWords(s) ? 2 : 1);
+  }
+
+  public static final class FilterOutcome {
+    public final String filtered;
+    public final List<Long> removedIds;
+    public FilterOutcome(String f, List<Long> r) {
+      this.filtered = f;
+      this.removedIds = r;
+    }
+  }
+
+  public FilterOutcome filterAndCollectIds(String content, List<BadTermEntity> terms) {
+    String out = content;
+    String low = content.toLowerCase();
+    List<Long> removed = new ArrayList<>();
+    for (var t : terms) {
+      String pat = t.getPattern();
+      String patLow = pat.toLowerCase();
+      if (low.contains(patLow)) {
+        removed.add(t.getId());
+        String regex = "(?i)(?<!\\w)" + Pattern.quote(pat) + "(?!\\w)";
+        out = out.replaceAll(regex, " ");
+        low = out.toLowerCase();
+      }
+    }
+    out = out.replaceAll("\\s+", " ").trim();
+    return new FilterOutcome(out, removed);
   }
 }
 

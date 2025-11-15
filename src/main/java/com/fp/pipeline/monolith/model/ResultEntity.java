@@ -15,6 +15,9 @@ public class ResultEntity {
   private boolean hasWords;
   private int score;
 
+  @Column(name="run_id")
+  private Long runId;
+
   @Column(name="processed_at", nullable=false)
   private OffsetDateTime processedAt = OffsetDateTime.now();
 
@@ -28,6 +31,8 @@ public class ResultEntity {
   public void setHasWords(boolean hasWords) { this.hasWords = hasWords; }
   public int getScore() { return score; }
   public void setScore(int score) { this.score = score; }
+  public Long getRunId() { return runId; }
+  public void setRunId(Long runId) { this.runId = runId; }
   public OffsetDateTime getProcessedAt() { return processedAt; }
   public void setProcessedAt(OffsetDateTime processedAt) { this.processedAt = processedAt; }
 }
